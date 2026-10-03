@@ -1,16 +1,14 @@
 # Subway Songlines
 
-Pick two stations on a subway system and the web app turns a selected data along the route into a
-piece of minimal music that lasts as long as the ride. You can press play as the doors close and hear the data on the way.
+Pick two stations on a subway system and the web app turns a selected data along the route into a piece of minimal music that lasts as long as the ride. You can press play as the doors close and hear the data on the way.
 
-It is a static page with no build step. Open `index.html` in a browser or serve
-the folder:
+It is a static page with no build step. Open `index.html` in a browser or serve the folder:
 
 ```bash
 python3 -m http.server 8421
 ```
 
-Audio is synthesized in the browser with [Tone.js](https://tonejs.github.io), loaded from a CDN.
+Your last city, route, data source, style, pace, and tempo are remembered in the browser's `localStorage`. Sound is sent through an audio element and registered with the phone's media controls, so it should keep playing when the screen locks or another app comes forward, with play/pause and the skip buttons on the lock screen.
 
 ## Data Sonification
 
@@ -24,9 +22,7 @@ The ride itself shapes the music too: voices thin out as the train brakes, one q
 
 However, ride time comes from a generic metro model, not from timetables: about 72 km/h between stations plus 40 s per hop for accelerating and braking, 30 s at each station, 4 minutes for a line change, and walking time plus 3 minutes for a transfer between nearby stations. Real rides differ by a minute or two, so the skip buttons (⏮ and ⏭) jump to the previous or next departure or arrival to re-sync. The pace control plays the same ride 2×, 5× or 15× faster for listening at a desk.
 
-There are three styles: Glass (arpeggios), Reich (pulses) and Eno (drift).
-
-Your last city, route, data source, style, pace, and tempo are remembered in the browser (`localStorage`; nothing is sent anywhere). Sound is sent through an audio element and registered with the phone's media controls, so it should keep playing when the screen locks or another app comes forward, with play/pause and the skip buttons on the lock screen. Phone browsers differ here; iOS Safari is the strictest.
+There are three styles: Glass (arpeggios), Reich (pulses) and Eno (drift). Audio is synthesized in the browser with [Tone.js](https://tonejs.github.io), loaded from a CDN.
 
 ## Data Processing
 
@@ -78,5 +74,3 @@ This project was built with Claude Code (Opus 5.5 at medium effort). The followi
 > I think the touch icon and favicon should be like subway line but like letter S
 
 > Is there a way to make the web app keep playing sound when it's not active?
-
-> build option 1
