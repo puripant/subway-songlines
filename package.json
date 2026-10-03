@@ -1,0 +1,12 @@
+{
+  "name": "subway-songlines",
+  "private": true,
+  "description": "Sonification of data along subway lines during a real-time ride",
+  "scripts": {
+    "fetch": "node scripts/fetch-city.mjs",
+    "layers": "node scripts/add-layers.mjs"
+  },
+  "devDependencies": {
+    "geotiff": "^3.0.5"
+  }
+}

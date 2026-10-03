@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subway Songlines — hear the data along a subway ride</title>
+  <meta name="description" content="Pick two subway stations and hear the terrain, population density or green space along the line as minimal music that lasts as long as the ride. Bangkok, Hong Kong, Lisbon, New York, London, Tokyo, Seoul, Shanghai, Beijing.">
+  <link rel="canonical" href="https://puripant.github.io/subway-songlines/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)">
+
+  <!-- Link previews: Facebook, LINE, LinkedIn, Slack, iMessage, WhatsApp… -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Subway Songlines">
+  <meta property="og:url" content="https://puripant.github.io/subway-songlines/">
+  <meta property="og:title" content="Subway Songlines">
+  <meta property="og:description" content="Pick two subway stations. Hear the data along the line — terrain, population or green space — for as long as the ride takes.">
+  <meta property="og:image" content="https://puripant.github.io/subway-songlines/social.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Subway Songlines: a subway network map above a population profile along one line, with a playhead.">
+  <meta property="og:locale" content="en_US">
+  <!-- X / Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Subway Songlines">
+  <meta name="twitter:description" content="Pick two subway stations. Hear the data along the line — terrain, population or green space — for as long as the ride takes.">
+  <meta name="twitter:image" content="https://puripant.github.io/subway-songlines/social.png">
+  <meta name="twitter:image:alt" content="Subway Songlines: a subway network map above a population profile along one line, with a playhead.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Subway Songlines</h1>
+    <p class="tagline">Pick two stations. Hear the data along the line, for as long as the ride takes.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <label>City
+        <select id="city"></select>
+      </label>
+      <label>From
+        <select id="from"></select>
+      </label>
+      <button id="swap" class="ghost" title="Swap direction" aria-label="Swap direction">⇅</button>
+      <label>To
+        <select id="to"></select>
+      </label>
+      <fieldset class="layers">
+        <legend>Data to play</legend>
+        <label><input type="radio" name="source" value="elev" checked> Terrain height</label>
+        <label><input type="radio" name="source" value="pop"> Population density</label>
+        <label><input type="radio" name="source" value="green"> Green space</label>
+      </fieldset>
+      <label>Style
+        <select id="style"></select>
+      </label>
+      <label>Pace
+        <select id="pace">
+          <option value="1">Real time — ride along</option>
+          <option value="2">2× faster</option>
+          <option value="5">5× faster</option>
+          <option value="15">15× — quick listen</option>
+        </select>
+      </label>
+      <label>Tempo <output id="tempoOut"></output>
+        <input id="tempo" type="range" min="50" max="200" step="2">
+      </label>
+      <div class="buttons">
+        <button id="prev" class="ghost" title="Back to the previous departure or arrival" aria-label="Back to the previous departure or arrival">⏮</button>
+        <button id="play" class="primary">Play</button>
+        <button id="next" class="ghost" title="Skip to the next departure or arrival" aria-label="Skip to the next departure or arrival">⏭</button>
+      </div>
+      <p class="tip">Train ahead of or behind the music? ⏮ ⏭ jump to the nearest departure or arrival.</p>
+      <button id="random" class="ghost">Surprise me</button>
+      <p id="summary" class="summary"></p>
+      <ul id="legend" class="legend"></ul>
+    </section>
+
+    <section class="stage">
+      <div class="map-wrap">
+        <svg id="map" role="img" aria-label="Subway network map"></svg>
+        <div class="zoom">
+          <button id="zoomIn" class="ghost" aria-label="Zoom in">+</button>
+          <button id="zoomOut" class="ghost" aria-label="Zoom out">−</button>
+          <button id="zoomFit" class="ghost" aria-label="Fit map">◻</button>
+        </div>
+        <p class="hint">Click a station to set the start, then another for the destination.</p>
+      </div>
+      <div class="profile-wrap">
+        <div class="now">
+          <span id="nowStation">—</span>
+          <span id="nowElev"></span>
+          <span id="nowChord"></span>
+          <span id="nowTime"></span>
+        </div>
+        <svg id="profile" role="img" aria-label="Terrain height along the route"></svg>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Stations © OpenStreetMap contributors. Heights: <span id="dem"></span>,
+    sampled every ~100 m on straight lines between stations.<span id="sources"></span>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <script src="data/index.js"></script>
+  <script src="music.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

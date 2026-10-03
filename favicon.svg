@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#141413"/>
+  <!-- A subway line bent into an S, with three stations. -->
+  <path d="M46,14 H26 a9,9 0 0 0 0,18 H38 a9,9 0 0 1 0,18 H18" fill="none" stroke="#ef6a55" stroke-width="6" stroke-linecap="round"/>
+  <g fill="#141413" stroke="#ebe7dd" stroke-width="2.5">
+    <circle cx="46" cy="14" r="5"/><circle cx="32" cy="32" r="5"/><circle cx="18" cy="50" r="5"/>
+  </g>
+</svg>

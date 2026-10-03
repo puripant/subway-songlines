@@ -1,0 +1,1 @@
+window.SONGLINES_INDEX = [{"id":"bangkok","name":"Bangkok"},{"id":"hongkong","name":"Hong Kong"},{"id":"lisbon","name":"Lisbon"},{"id":"newyork","name":"New York"},{"id":"london","name":"London"},{"id":"tokyo","name":"Tokyo"},{"id":"seoul","name":"Seoul"},{"id":"shanghai","name":"Shanghai"},{"id":"beijing","name":"Beijing"}];
