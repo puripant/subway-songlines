@@ -1,5 +1,6 @@
 (function () {
   const { compose, Player, STYLES, STEPS } = window.Songlines;
+  const Songlines = window.Songlines;
   const CITIES = window.SONGLINES_CITIES = window.SONGLINES_CITIES || {};
   const INDEX = window.SONGLINES_INDEX || [];
   const SVG = 'http://www.w3.org/2000/svg';
@@ -519,6 +520,7 @@
     clearPosition();
     summarise();
     save();
+    announce();
   }
 
   // Same route, different style / tempo / pace: keep the place in the journey.
@@ -535,6 +537,7 @@
     if (state.pos) showPosition(positionAt(player.step)); else clearPosition();
     summarise();
     save();
+    announce();
   }
 
   // Jump to the previous / next departure or arrival, to re-sync with the train.
@@ -558,14 +561,63 @@
     recompute();
   }
 
-  // Keep the screen on during a ride; audio stops on most phones once it locks.
+  async function play() {
+    if (!state.score) return;
+    await player.play();
+    holdWake();
+    ui.play.textContent = 'Pause';
+    announce();
+  }
+
+  function pause() {
+    player.pause();
+    releaseWake();
+    ui.play.textContent = 'Resume';
+    announce();
+  }
+
+  // Lock-screen and headphone controls: what is playing, play/pause, and the
+  // skip buttons for re-syncing with the train.
+  const media = navigator.mediaSession;
+  function announce() {
+    if (!media || !state.route) return;
+    const name = (i) => state.city.stations[i].name;
+    media.metadata = new MediaMetadata({
+      title: `${name(state.from)} → ${name(state.to)}`,
+      artist: `${state.city.name} · ${Songlines.SOURCES[state.score.source].label.toLowerCase()}`,
+      album: 'Subway Songlines',
+      artwork: [{ src: 'apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    });
+    media.playbackState = player.playing ? 'playing' : 'paused';
+    announcePosition(player.step);
+  }
+  function announcePosition(step) {
+    if (!media?.setPositionState || !state.score) return;
+    const duration = state.score.seconds;
+    try {
+      media.setPositionState({ duration, position: Math.min(duration, step * 30 / state.score.bpm), playbackRate: 1 });
+    } catch { /* some browsers reject position state for live streams */ }
+  }
+  function bindMediaKeys() {
+    if (!media) return;
+    const on = (action, fn) => { try { media.setActionHandler(action, fn); } catch { /* unsupported action */ } };
+    on('play', play);
+    on('pause', pause);
+    on('previoustrack', () => skip(-1));
+    on('nexttrack', () => skip(1));
+  }
+
+  // Keep the screen on during a ride as well, so the map stays visible.
   let wake = null;
   async function holdWake() {
     try { wake = await navigator.wakeLock?.request('screen'); } catch { wake = null; }
   }
   function releaseWake() { wake?.release().catch(() => {}); wake = null; }
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && player.playing) holdWake();
+    if (document.visibilityState !== 'visible' || !player.playing) return;
+    holdWake();
+    player.wake();
+    showPosition(positionAt(Math.max(0, player.step - 1)));
   });
 
   function loadScript(src) {
@@ -650,16 +702,16 @@
       recompute();
       fitRoute();
     };
-    ui.play.onclick = async () => {
-      if (player.playing) { player.pause(); releaseWake(); ui.play.textContent = 'Resume'; return; }
-      await player.play();
-      holdWake();
-      ui.play.textContent = 'Pause';
-    };
+    ui.play.onclick = () => (player.playing ? pause() : play());
+    bindMediaKeys();
     ui.prev.onclick = () => skip(-1);
     ui.next.onclick = () => skip(1);
-    player.onStep = (step) => showPosition(positionAt(step));
-    player.onEnd = () => { ui.play.textContent = 'Play'; releaseWake(); clearPosition(); };
+    player.onStep = (step) => {
+      // Nobody is looking while the page is hidden; just keep the lock screen's clock right.
+      if (document.visibilityState === 'visible') showPosition(positionAt(step));
+      if (step % (STEPS * 4) === 0) announcePosition(step);
+    };
+    player.onEnd = () => { ui.play.textContent = 'Play'; releaseWake(); clearPosition(); announce(); };
 
     // Pick up where the last visit left off.
     const last = saved();

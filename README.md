@@ -26,6 +26,8 @@ However, ride time comes from a generic metro model, not from timetables: about 
 
 There are three styles: Glass (arpeggios), Reich (pulses) and Eno (drift).
 
+Your last city, route, data source, style, pace, and tempo are remembered in the browser (`localStorage`; nothing is sent anywhere). Sound is sent through an audio element and registered with the phone's media controls, so it should keep playing when the screen locks or another app comes forward, with play/pause and the skip buttons on the lock screen. Phone browsers differ here; iOS Safari is the strictest.
+
 ## Data Processing
 
 There are 9 subway systems: Bangkok, Tokyo, Seoul, Shanghai, Beijing, Hong Kong, New York, London, and Lisbon. Lines and stations are from OpenStreetMap (OSM) via Overpass; only what OSM tags as `route=subway` (plus monorail in Bangkok) so some suburban and airport lines are missing. 
@@ -68,3 +70,13 @@ This project was built with Claude Code (Opus 5.5 at medium effort). The followi
 > Update the tagline; possibly "Hear the data ..." Also, update readme to describe the project and include my prompts, verbatim, except the move instruction.
 
 > I think playing only one main track just like in the beginning is better. The user has to choose the data source to play; cannot play many datasets at the same time.
+
+> Add a cookie(?) to save the previously selected options so the user can go back to the same route easily next time he/she opens the web.
+>
+> Also, add all social media images/information for sharing online. The URL will be at https://puripant.github.io/subway-songlines/
+
+> I think the touch icon and favicon should be like subway line but like letter S
+
+> Is there a way to make the web app keep playing sound when it's not active?
+
+> build option 1

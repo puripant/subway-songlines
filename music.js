@@ -285,9 +285,13 @@
 
     init() {
       if (this.ready) return;
+      // Schedule a little further ahead than the default 0.1 s, so a throttled
+      // background page still gets its notes in on time.
+      Tone.getContext().lookAhead = 0.3;
       const reverb = new Tone.Reverb({ decay: 5, wet: 0.28 });
-      const out = new Tone.Limiter(-2).toDestination();
+      const out = new Tone.Limiter(-2);
       reverb.connect(out);
+      this.route(out);
       const poly = (voice, opts, vol) => {
         const s = new Tone.PolySynth(voice, opts);
         s.maxPolyphony = 24;
@@ -329,6 +333,31 @@
       this.ready = true;
     }
 
+    // Send the sound out through an <audio> element rather than straight to the
+    // speakers. To a phone that makes it media playback, which is allowed to
+    // carry on when the screen locks or another app comes forward; plain
+    // synthesised Web Audio is suspended. Falls back to the direct path if the
+    // browser will not have it.
+    route(out) {
+      try {
+        const dest = Tone.getContext().createMediaStreamDestination();
+        out.connect(dest);
+        this.media = new Audio();
+        this.media.srcObject = dest.stream;
+        this.direct = () => { out.disconnect(dest); out.toDestination(); this.media = null; };
+      } catch {
+        out.toDestination();
+        this.media = null;
+      }
+    }
+
+    // After an interruption (a call, the lock screen) make sure sound is flowing.
+    async wake() {
+      if (!this.ready || !this.playing) return;
+      if (Tone.getContext().state !== 'running') await Tone.getContext().resume().catch(() => {});
+      if (this.media?.paused) await this.media.play().catch(() => {});
+    }
+
     // Swap in a new score; `step` keeps the place when only the style or
     // tempo changed.
     load(score, step = 0) {
@@ -353,18 +382,22 @@
       await Tone.start();
       this.init();
       if (!this.score) return;
+      if (this.media) {
+        try { await this.media.play(); } catch { this.direct(); }
+      }
       if (this.eventId === null) {
         this.eventId = Tone.Transport.scheduleRepeat((time) => this.tick(time), '8n');
       }
       Tone.Transport.start();
     }
 
-    pause() { Tone.Transport.pause(); this.silence(); }
+    pause() { Tone.Transport.pause(); this.silence(); this.media?.pause(); }
 
     stop() {
       Tone.Transport.stop();
       if (this.eventId !== null) { Tone.Transport.clear(this.eventId); this.eventId = null; }
       this.silence();
+      this.media?.pause();
       this.step = 0;
     }
 
